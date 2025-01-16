@@ -1,6 +1,7 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const API_ROUTES = {
+  TEST: `${BASE_URL}/api/test`,
   LOGIN: `${BASE_URL}/api/login`,
   REGISTER: `${BASE_URL}/api/register`,
   USER: `${BASE_URL}/api/user`,

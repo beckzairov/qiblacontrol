@@ -15,7 +15,7 @@ export default function RegisterPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://localhost:8000/api/register', {
+      const response = await fetch('http://localhost:8000/api/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,10 +43,10 @@ export default function RegisterPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+    <div className="min-h-screen flex items-center justify-center text-foreground">
       <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-lg p-8 shadow-md">
         <h1 className="text-2xl font-bold mb-6 dark:text-white">Register</h1>
-        <form onSubmit={handleLogin} >
+        <form onSubmit={handleRegister} >
           <div className="mb-4">
             <label className="block text-sm font-medium dark:text-white">Name</label>
             <input

@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-console.log(123);
 
 export function middleware(request) {
   // Get the token from cookies
@@ -20,7 +19,7 @@ export const config = {
     "/profile/:path*",
     "/dashboard/:path*",
     "/",
-    "/for/:path*"
+    // "/for/:path*"
   ]
 };
 
