@@ -12,7 +12,7 @@ export function AuthProvider({ children }) {
   const router = useRouter();
 
   // Fetch the authenticated user
-  useEffect(() => {
+  const refreshUser = () => {
     const token = document.cookie
       .split("; ")
       .find((row) => row.startsWith("token="))
@@ -26,12 +26,19 @@ export function AuthProvider({ children }) {
       })
         .then((response) => response.json())
         .then((data) => {
-          setUser(data);
+          setUser(data); // Update user state
         })
         .catch((error) => {
           console.error("Error fetching user info:", error);
+          setUser(null); // Clear user if there's an error
         });
+    } else {
+      setUser(null); // Clear user if no token is found
     }
+  };
+
+  useEffect(() => {
+    refreshUser();
   }, []);
 
   // Login function
@@ -49,7 +56,7 @@ export function AuthProvider({ children }) {
 
   // Provide the context value
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

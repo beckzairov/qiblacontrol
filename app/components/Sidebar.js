@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { HomeIcon, UserIcon, CogIcon, ArrowLeftOnRectangleIcon, MoonIcon, SunIcon } from "@heroicons/react/24/outline";
+import { HomeIcon, UserIcon, CogIcon, ArrowLeftOnRectangleIcon, MoonIcon, SunIcon, ChartPieIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 
@@ -31,7 +31,9 @@ export default function Sidebar() {
   }, []);
 
   const menuItems = [
-    { name: "Dashboard", icon: <HomeIcon className="h-6 w-6" />, path: "/dashboard" },
+    { name: "Home", icon: <HomeIcon className="h-6 w-6" />, path: "/" },
+    { name: "Dashboard", icon: <ChartPieIcon className="h-6 w-6" />, path: "/dashboard" },
+    { name: "Agreement", icon: <DocumentTextIcon className="h-6 w-6" />, path: "/agreements" },
     { name: "Profile", icon: <UserIcon className="h-6 w-6" />, path: "/profile" },
     { name: "Settings", icon: <CogIcon className="h-6 w-6" />, path: "/settings" },
   ];

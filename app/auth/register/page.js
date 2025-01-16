@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 
 export default function RegisterPage() {
+  const { refreshUser } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,7 +17,7 @@ export default function RegisterPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/api/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,9 +27,15 @@ export default function RegisterPage() {
 
       const data = await response.json();
 
-      if (data.message === 'User created successfully') {
-        alert('Registration successful! Please log in.');
-        router.push('/auth/login');
+      if (data.token) {
+        // Set cookie (ensure Secure and SameSite in production)
+        document.cookie = `token=${data.token}; path=/; SameSite=Lax`;
+        
+        // Refresh user state
+        refreshUser();
+
+        // Navigate to dashboard
+        router.push('/dashboard');
       } else {
         alert(data.message || 'Registration failed');
       }
@@ -87,6 +95,18 @@ export default function RegisterPage() {
             Register
           </button>
         </form>
+
+        {/* Login Link */}
+        <div className="mt-4 text-center">
+          <p className="text-sm dark:text-gray-300">
+            Do you have an account?{" "}
+            <Link href="/auth/login">
+              <span className="text-blue-500 hover:underline dark:text-blue-400">
+                Log In
+              </span>
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

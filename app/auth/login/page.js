@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 
 export default function LoginPage() {
+  const { refreshUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
@@ -15,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:8000/api/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -24,17 +26,22 @@ export default function LoginPage() {
       });
 
       const data = await response.json();
-      // console.log(data);
-      
+
       if (data.token) {
-        // localStorage.setItem('token', data.token);
-        document.cookie = `token=${data.token}; path=/`;
+        // Set cookie (ensure Secure and SameSite in production)
+        document.cookie = `token=${data.token}; path=/; SameSite=Lax`;
+        
+        // Refresh user state
+        refreshUser();
+
+        // Navigate to dashboard
         router.push('/dashboard');
       } else {
         alert(data.message || 'Login failed');
       }
     } catch (error) {
       console.error('Login error:', error);
+      alert('An error occurred during login. Please try again.');
     }
   };
 
@@ -50,7 +57,7 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold mb-6 dark:text-white">Login</h1>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label className="block text-sm font-medium dark:text-white">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium dark:text-white">Email</label>
             <input
               type="email"
               id="email"
@@ -58,10 +65,11 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required
+              aria-label="Enter your email"
             />
           </div>
           <div className="mb-6">
-            <label className="block text-sm font-medium dark:text-white">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium dark:text-white">Password</label>
             <input
               type="password"
               id="password"
@@ -69,6 +77,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required
+              aria-label="Enter your password"
             />
           </div>
           <button
@@ -78,6 +87,18 @@ export default function LoginPage() {
             Login
           </button>
         </form>
+
+        {/* Signup Link */}
+        <div className="mt-4 text-center">
+          <p className="text-sm dark:text-gray-300">
+            Don't have an account?{" "}
+            <Link href="/auth/register">
+              <span className="text-blue-500 hover:underline dark:text-blue-400">
+                Sign up
+              </span>
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
