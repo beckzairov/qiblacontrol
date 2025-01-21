@@ -9,4 +9,11 @@ export const API_ROUTES = {
   MANAGER: `${BASE_URL}/api/manager`,
   SALE_OPERATOR: `${BASE_URL}/api/sale-operator`,
   SPECIALIST: `${BASE_URL}/api/specialist`,
+
+
+
+
+
+  AGREEMENTS: `${BASE_URL}/api/agreements`, // POST for creating agreements, GET for retrieving all
+  AGREEMENT_DETAIL: (id) => `${BASE_URL}/api/agreements/${id}`, // For viewing, updating, or deleting a specific agreement
 };

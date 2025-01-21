@@ -13,10 +13,10 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="icon" href="/bitcoin.ico" />
       </head>
-      <body className="flex">
+      <body className="min-h-screen flex">
         <AuthProvider>
           <Sidebar />
-          <main className="flex-grow p-8">{children}</main>
+          <main className="flex-grow p-8 overflow-y-auto">{children}</main>
         </AuthProvider>
       </body>
     </html>

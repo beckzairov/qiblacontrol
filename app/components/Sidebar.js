@@ -39,7 +39,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className={`flex flex-col ${isOpen ? "w-64" : "w-20"} bg-gray-800 h-screen p-5 transition-width duration-300`}>
+    <div className={`flex flex-col ${isOpen ? "w-64" : "w-20"} bg-gray-800 p-5 transition-width duration-300`}>
       {/* Toggle Button */}
       <button onClick={toggleSidebar} className="text-white mb-6 focus:outline-none">
         {isOpen ? "←" : "→"}
