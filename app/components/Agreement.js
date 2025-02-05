@@ -1,11 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Select from 'react-select';
 import { PencilIcon } from '@heroicons/react/24/outline'; // Heroicons Pen Icon
 import { formatNumber } from '@/utils/numberFormatter'; // Utility for formatting numbers
 import { API_ROUTES } from '@/utils/apiRoutes'; // Centralized API routes
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AgreementForm({ isEdit = false, agreementId = null }) {
+  const { user } =  useAuth(); // Fetch roles from useAuth
+  
+  let isAdminOrManager
+  
+  if (user) {
+    isAdminOrManager = user.roles.some(role => ['Admin', 'Manager'].includes(role.name));
+  }
+  
+
   const [formData, setFormData] = useState({
     flight_date: '',
     duration_of_stay: '',
@@ -18,22 +29,48 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
     total_price: '',
     payment_paid: '',
     phone_numbers: [''],
-    previous_agreement_taken_away: false,
+    responsible_user_id: null,
+    previous_agreement_taken_away: isEdit ? false : null,
     comments: '',
   });
+  const [userOptions, setUserOptions] = useState([]); // List of available users
   const [loading, setLoading] = useState(false);
   const [isExchangeEditable, setIsExchangeEditable] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // console.log(isEdit);
+  
   // Fetch existing agreement data if in edit mode
   useEffect(() => {
     if (isEdit && agreementId) {
       fetchAgreementData();
     }
+    fetchUsers();
   }, [isEdit, agreementId]);
 
+    // Fetch available users for the responsible user dropdown
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(API_ROUTES.USERS, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${document.cookie.split('token=')[1]}`,
+          },
+        });
+        if (!response.ok) throw new Error('Failed to fetch users');
+        const data = await response.json();
+        // Map user data to react-select options
+        const options = data.map(user => ({
+          value: user.id,
+          label: user.name,
+        }));
+        setUserOptions(options);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
   const fetchAgreementData = async () => {
-    console.log(1123);
     
     try {
       const response = await fetch(API_ROUTES.AGREEMENT_DETAIL(agreementId), {
@@ -43,10 +80,8 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
         }});
       if (!response.ok) throw new Error('Failed to fetch agreement data');
       const data = await response.json();
-    //   console.log(data);
       
       setFormData(data.data);
-    //   console.log(formData);
     } catch (error) {
       console.error('Error fetching agreement:', error);
     }
@@ -63,6 +98,7 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
       'exchange_rate',
       'total_price',
       'payment_paid',
+      'responsible_user_id',
     ];
 
     for (const field of requiredFields) {
@@ -86,6 +122,13 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
     });
   };
 
+  const handleUserChange = (selectedOption) => {
+    setFormData({
+      ...formData,
+      responsible_user_id: selectedOption ? selectedOption.value : null,
+    });
+  };
+
   const handleExchangeRateEdit = () => {
     setIsExchangeEditable(true);
   };
@@ -96,6 +139,10 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
     if (parts.length > 2) value = `${parts[0]}.${parts[1]}`;
     if (parts[1]?.length > 2) value = `${parts[0]}.${parts[1].substring(0, 2)}`;
     setFormData({ ...formData, exchange_rate: value });
+  };
+
+  const handleSelectChange = (selectedOption) => {
+    setFormData({ ...formData, responsible_user_id: selectedOption.value });
   };
 
   const handleSubmit = async (e) => {
@@ -116,7 +163,6 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
       ? API_ROUTES.AGREEMENT_DETAIL(agreementId)
       : API_ROUTES.AGREEMENTS;
       
-      console.log(url);
       const response = await fetch(url, {
         method,
         headers: {
@@ -125,7 +171,7 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
         },
         body: JSON.stringify(formData),
       });
-
+      
       if (!response.ok) throw new Error('Failed to submit agreement');
 
       const data = await response.json();
@@ -142,9 +188,33 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-6">
       <div className="w-full max-w-4xl bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-        <h1 className="text-2xl font-bold mb-6 dark:text-white">
-          {isEdit ? 'Edit Agreement' : 'Create Agreement'}
-        </h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold dark:text-white">
+            {isEdit ? 'Edit Agreement' : 'Create Agreement'}
+          </h1>
+          {/* Responsible User Dropdown */}
+          <div className="w-1/3">
+            <label htmlFor="responsible_user_id" className="block text-sm font-medium dark:text-white">
+              Responsible User
+            </label>
+            
+              <Select
+                id="responsible_user_id"
+                instanceId="responsible-user-select"
+                options={userOptions}
+                value={console.log(formData)}
+                  // formData ? (userOptions.find(option => option.value === formData.responsible_user_id.id) || null) : NULL}
+                isDisabled={isEdit && (isAdminOrManager === null ? true : !isAdminOrManager)} // Disable for non-Admin/Manager in edit mode
+                onChange={handleSelectChange}
+                placeholder="Select a responsible user"
+                className="dark:text-black"
+              />
+            
+            {errors.responsible_user_id && (
+              <p className="text-red-500 text-sm mt-1">{errors.responsible_user_id}</p>
+            )}
+          </div>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {isEdit && (
             <div>
@@ -155,7 +225,7 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
                 type="checkbox"
                 id="previous_agreement_taken_away"
                 name="previous_agreement_taken_away"
-                checked={formData.previous_agreement_taken_away}
+                checked={!!formData.previous_agreement_taken_away}
                 onChange={handleInputChange}
               />
             </div>
@@ -170,7 +240,7 @@ export default function AgreementForm({ isEdit = false, agreementId = null }) {
               type="date"
               id="flight_date"
               name="flight_date"
-              value={formData.flight_date}
+              value={formData.flight_date ?? ''}
               onChange={handleInputChange}
               className="w-full p-2 border border-gray-300 rounded dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required

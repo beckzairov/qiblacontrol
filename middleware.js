@@ -18,24 +18,7 @@ export const config = {
   matcher: [
     "/profile/:path*",
     "/dashboard/:path*",
+    "/agreements/:path*",
     "/",
-    // "/for/:path*"
   ]
 };
-
-// function to decode token validity
-// function decodeToken(token: string): boolean {
-//   try {
-//     const decodedToken = jwt.decode(token) as jwt.JwtPayload;
-
-//     if (!decodedToken || !decodedToken.exp) {
-//       return false;
-//     }
-
-//     const currentTime = Math.floor(Date.now() / 1000);
-//     return decodedToken.exp > currentTime;
-//   } catch (err) {
-//     console.error("Token decoding error:", err);
-//     return false;
-//   }
-// }

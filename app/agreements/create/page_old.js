@@ -145,7 +145,6 @@ export default function Agreements({ isEdit = false, agreementData = {} }) {
         },
         body: JSON.stringify(payload),
       });
-      console.log(1);
       
       if (!response.ok) {
         throw new Error('Failed to create agreement. Please try again.');
@@ -154,7 +153,6 @@ export default function Agreements({ isEdit = false, agreementData = {} }) {
       const data = await response.json();
   
       alert('Agreement created successfully!');
-      console.log('Created agreement:', data);
   
       // Reset the form or redirect as needed
       setFormData({

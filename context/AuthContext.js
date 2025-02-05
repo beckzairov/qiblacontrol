@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
       ?.split("=")[1];
 
     if (token) {
-      fetch(API_ROUTES.USER, {
+      fetch(API_ROUTES.ME, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

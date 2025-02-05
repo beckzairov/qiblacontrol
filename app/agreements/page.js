@@ -23,7 +23,7 @@ export default function AgreementsPage() {
       });
 
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       setAgreements(data);
     } catch (error) {
       console.error('Error fetching agreements:', error);

@@ -11,7 +11,6 @@ export default function For() {
         .catch((error) => {
           console.error("Error fetching user info:", error);
         });
-        console.log(test);
         
     return(
         <>
